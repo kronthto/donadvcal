@@ -11,4 +11,20 @@ set_error_handler(function ($severity, $message, $file, $line) {
 
 require __DIR__.'/vendor/autoload.php';
 
-// TODO
+$dotenv = new Dotenv\Dotenv(__DIR__);
+$dotenv->load();
+
+$parser = new \App\AdvCalParser();
+$notifier = new \App\Notifier();
+
+$today = date('Y-m-d');
+
+$wins = null;
+try {
+    $wins = $parser->getWins($today);
+} catch (\App\ParseException $ex) {
+    $notifier->informAdmin($ex);
+    exit;
+}
+
+$notifier->notifyCalendars($wins, $today);
